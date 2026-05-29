@@ -1,0 +1,46 @@
+name: Build and Release EXE
+
+on:
+  push:
+    tags:
+      - 'v*' # v1.0.0 のようにタグを打った時に自動実行
+  workflow_dispatch: # 手動で実行できるボタンも用意
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        
+    - name: Install Dependencies
+      working-directory: ./desktop
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build EXE
+      working-directory: ./desktop
+      run: |
+        pyinstaller --noconsole --icon="icon.ico" --name "AI_BG_Remover_Heavy" --exclude-module tensorflow --exclude-module tensorboard --exclude-module keras --exclude-module pandas --exclude-module matplotlib --exclude-module IPython --exclude-module torch --exclude-module torchvision --copy-metadata pymatting --copy-metadata rembg --copy-metadata pooch --copy-metadata customtkinter main.py
+
+    - name: Create ZIP Archive
+      working-directory: ./desktop/dist
+      run: |
+        Compress-Archive -Path AI_BG_Remover_Heavy -DestinationPath Auto_BG_Remover_Windows.zip
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: desktop/dist/Auto_BG_Remover_Windows.zip
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

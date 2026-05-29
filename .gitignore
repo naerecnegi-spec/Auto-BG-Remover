@@ -1,0 +1,22 @@
+# Desktop (Python / PyInstaller)
+desktop/__pycache__/
+desktop/build/
+desktop/dist/
+desktop/*.spec
+desktop/.venv/
+desktop/*.exe
+
+# Web (Node.js / Vite)
+web/node_modules/
+web/dist/
+web/.env
+web/.env.local
+
+# Models & Large Files (if any exist)
+*.onnx
+*.pth
+*.pt
+
+# OS specific
+.DS_Store
+Thumbs.db
