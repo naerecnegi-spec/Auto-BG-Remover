@@ -171,22 +171,17 @@ class App(CTk):
                 with open(input_path, 'rb') as i_file:
                     input_data = i_file.read()
                     
-                    if model_name == "isnet-anime":
-                        # アニメ特化の場合は半透明(中途半端な透明度)を2値化して消す
-                        img = Image.open(io.BytesIO(input_data))
-                        out_img = remove(img, session=session)
-                        
-                        out_img = out_img.convert("RGBA")
-                        r, g, b, a = out_img.split()
-                        # アルファ値が128より大きければ完全不透明(255)、それ以外は完全透明(0)
-                        a = a.point(lambda p: 255 if p > 128 else 0)
-                        out_img = Image.merge("RGBA", (r, g, b, a))
-                        
-                        out_img.save(output_path, format="PNG")
-                    else:
-                        output_data = remove(input_data, session=session)
-                        with open(output_path, 'wb') as o_file:
-                            o_file.write(output_data)
+                    # 全モデル共通で半透明(中途半端な透明度)を2値化して消す
+                    img = Image.open(io.BytesIO(input_data))
+                    out_img = remove(img, session=session)
+                    
+                    out_img = out_img.convert("RGBA")
+                    r, g, b, a = out_img.split()
+                    # アルファ値が128より大きければ完全不透明(255)、それ以外は完全透明(0)
+                    a = a.point(lambda p: 255 if p > 128 else 0)
+                    out_img = Image.merge("RGBA", (r, g, b, a))
+                    
+                    out_img.save(output_path, format="PNG")
 
             self.status_label.configure(text=f"完了！ {total}枚の画像を処理しました", text_color="green")
 
